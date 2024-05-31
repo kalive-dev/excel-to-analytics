@@ -1,4 +1,4 @@
-@excel_to_analytics.Api_HostAddress = http://localhost:5054
+@excel_to_analytics.Api_HostAddress = https://localhost:7174
 
 GET {{excel_to_analytics.Api_HostAddress}}/weatherforecast/
 Accept: application/json
