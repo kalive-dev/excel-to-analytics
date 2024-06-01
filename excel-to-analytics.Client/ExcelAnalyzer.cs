@@ -35,6 +35,60 @@ namespace excel_to_analytics.Client
 
             return dataList;
         }
+        public Dictionary<string, string> GetPopularCategoriesByMonth(List<ExcelData> dataList)
+        {
+            var popularCategories = new Dictionary<string, string>();
+
+            foreach (var data in dataList)
+            {
+                string monthYear = data.Date.ToString("MMMM yyyy");
+
+                if (!popularCategories.ContainsKey(monthYear))
+                {
+                    popularCategories[monthYear] = data.ProductDescription;
+                }
+                else
+                {
+                    var categories = new Dictionary<string, int>();
+                    categories[data.ProductDescription] = 1;
+
+                    if (popularCategories[monthYear] != data.ProductDescription)
+                    {
+                        categories[popularCategories[monthYear]] = 1;
+                    }
+
+                    popularCategories[monthYear] = categories.OrderByDescending(x => x.Value).First().Key;
+                }
+            }
+            return popularCategories;
+        }
+        public Dictionary<string, string> GetPopularCategoriesByYear(List<ExcelData> dataList)
+        {
+            var popularCategories = new Dictionary<string, string>();
+
+            foreach (var data in dataList)
+            {
+                string year = data.Date.Year.ToString();
+
+                if (!popularCategories.ContainsKey(year))
+                {
+                    popularCategories[year] = data.ProductDescription;
+                }
+                else
+                {
+                    var categories = new Dictionary<string, int>();
+                    categories[data.ProductDescription] = 1;
+
+                    if (popularCategories[year] != data.ProductDescription)
+                    {
+                        categories[popularCategories[year]] = 1;
+                    }
+
+                    popularCategories[year] = categories.OrderByDescending(x => x.Value).First().Key;
+                }
+            }
+            return popularCategories;
+        }
     }
 
     public class ExcelData
