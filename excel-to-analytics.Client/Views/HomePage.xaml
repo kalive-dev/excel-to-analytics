@@ -23,11 +23,8 @@
                 Text="Pick Excel File"
                 WidthRequest="400" />
         </StackLayout>
-        <StackLayout Grid.Row="1" Grid.Column="0">
+        <StackLayout Grid.Row="1" Grid.ColumnSpan="2">
             <microcharts:ChartView x:Name="chartView" HeightRequest="200" />
-        </StackLayout>
-        <StackLayout Grid.Row="1" Grid.Column="2">
-
         </StackLayout>
     </Grid>
 </ContentPage>
