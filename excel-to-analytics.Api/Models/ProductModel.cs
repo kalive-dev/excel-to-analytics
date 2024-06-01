@@ -5,15 +5,10 @@ namespace excel_to_analytics.Api.Models
         [Key]
         public int ProductId { get; set; }
         public string Name { get; set; }
-        public double Amount { get; set; }
-        public Classification Classification { get; set; }
-        [MaxLength(100)]
-        public int Demand { get; set; }
-    }
-    public enum Classification
-    {
-        firstClassification ,
-        seccondCClassification,
-        lastClassification
+        public int Quantity { get; set; }
+        public string Classification { get; set; }
+        public DateTime DateTimeofSell { get; set; }
+        public int Price { get; set; }
+        public string Address { get; set; }
     }
 }
