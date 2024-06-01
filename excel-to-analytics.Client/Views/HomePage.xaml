@@ -5,6 +5,7 @@
              xmlns:micro="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              BackgroundColor="White"
              Title="Home"
+             BindingContext="excel_to_analytics.Client.ViewModels"
              Shell.NavBarIsVisible="False">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -21,13 +22,14 @@
                 <Button TextColor="White" BackgroundColor="#339966" Text="Download Excel"/>
             </VerticalStackLayout>
         </VerticalStackLayout>
-        <micro:ChartView x:Name="Chart">
-            
-        </micro:ChartView>
+        <VerticalStackLayout>
+            <micro:ChartView x:Name="chartView" HeightRequest="500" />
+            <micro:ChartView x:Name="chartView1" HeightRequest="500" />
+        </VerticalStackLayout>
         <VerticalStackLayout Margin="40,10,10,10" Grid.Row="2">
             <Label CharacterSpacing="5" TextColor="Black">Завантажені файли:</Label>
             <ListView></ListView>
         </VerticalStackLayout>
     </Grid>
-   
+
 </ContentPage>
