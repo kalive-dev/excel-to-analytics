@@ -13,7 +13,17 @@ namespace excel_to_analytics.Api.Controllers
         [HttpGet("Products")]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
-            return _context.Products.Include(p => p.Sales).ToList();
+            var products = _context.Products
+              .Include(p => p.Sales)
+              .Select(p => new Product
+              {
+                  ProductId = p.ProductId,
+                  Name = p.Name,
+                  Classification = p.Classification
+              })
+              .ToList();
+
+            return products;
         }
 
         // POST: api/v1/Product
