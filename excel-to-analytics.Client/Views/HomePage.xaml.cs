@@ -1,6 +1,15 @@
+using Microsoft.Maui.Controls;
+
+using ClosedXML.Excel;
+using Microcharts;
+
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microcharts.Maui;
 
 namespace excel_to_analytics.Client.Views
 {
@@ -11,35 +20,51 @@ namespace excel_to_analytics.Client.Views
             InitializeComponent();
         }
 
-        async void OnSelectExcelFileClicked(object sender, EventArgs e)
+        private async void OnPickFileClicked(object sender, EventArgs e)
         {
-            var file = await FilePicker.PickAsync(new PickOptions
+            var result = await FilePicker.PickAsync(new PickOptions
             {
-                PickerTitle = "Select Excel File"
+                PickerTitle = "Pick an Excel file",
             });
 
-            if (file != null)
+            if (result != null)
             {
-                var excelData = ReadExcelFile(file.FullPath);
-                DataListView.ItemsSource = excelData;
+                var stream = await result.OpenReadAsync();
+                var entries = ReadExcelData(stream);
+                DisplayChart(entries);
             }
         }
 
-        List<string> ReadExcelFile(string filePath)
+        private List<ChartEntry> ReadExcelData(Stream stream)
         {
-            List<string> excelData = new List<string>();
+            var entries = new List<ChartEntry>();
 
-            using (StreamReader reader = new StreamReader(filePath))
+            using (var workbook = new XLWorkbook(stream))
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                var worksheet = workbook.Worksheet(1);
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Skipping header
+
+                foreach (var row in rows)
                 {
-                    excelData.Add(line);
+                    var date = row.Cell(4).GetValue<DateTime>();
+                    var quantity = row.Cell(5).GetValue<float>();
+
+                    entries.Add(new ChartEntry(quantity)
+                    {
+                        Label = date.ToString("dd.MM.yyyy"),
+                        ValueLabel = quantity.ToString(),
+                        Color = SKColor.Parse("#3498db") // You can set a color of your choice
+                    });
                 }
             }
 
-            return excelData;
+            return entries;
         }
 
+        private void DisplayChart(List<ChartEntry> entries)
+        {
+            var chart = new LineChart { Entries = entries };
+            chartView.Chart = chart;
+        }
     }
 }
