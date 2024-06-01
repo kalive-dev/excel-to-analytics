@@ -10,7 +10,6 @@ namespace excel_to_analytics.Api.databaseContext
         public DbSet<Product> Products { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(k => k.ProductId);
