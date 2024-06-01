@@ -1,72 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using OfficeOpenXml;
-using MathNet.Numerics.Statistics;
 
 namespace excel_to_analytics.Client
 {
-    public class ExcelAnalyzer
+    internal class ExcelAnalyzer
     {
-        public static Dictionary<string, List<(DateTime Date, double Sales)>> LoadData(string filePath)
+        public List<ExcelData> ReadExcelData(string filePath)
         {
-            var data = new Dictionary<string, List<(DateTime Date, double Sales)>>();
+            List<ExcelData> dataList = new List<ExcelData>();
 
-            using (var package = new ExcelPackage(new System.IO.FileInfo(filePath)))
+            FileInfo fileInfo = new FileInfo(filePath);
+            using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
-                var worksheet = package.Workbook.Worksheets[0];
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
 
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                int rowCount = worksheet.Dimension.Rows;
+                int columnCount = worksheet.Dimension.Columns;
+
+                for (int row = 1; row <= rowCount; row++)
                 {
-                    var product = worksheet.Cells[row, 1].Text;
-                    var date = DateTime.Parse(worksheet.Cells[row, 2].Text);
-                    var sales = double.Parse(worksheet.Cells[row, 3].Text);
+                    ExcelData data = new ExcelData();
+                    data.Location = worksheet.Cells[row, 1].Value?.ToString();
+                    data.Area = worksheet.Cells[row, 2].Value?.ToString();
+                    data.ProductDescription = worksheet.Cells[row, 3].Value?.ToString();
+                    data.Date = DateTime.ParseExact(worksheet.Cells[row, 4].Value?.ToString(), "dd.MM.yyyy HH:mm:ss", null);
+                    data.Quantity = Convert.ToDouble(worksheet.Cells[row, 5].Value);
+                    data.Price = Convert.ToDouble(worksheet.Cells[row, 6].Value);
 
-                    if (!data.ContainsKey(product))
-                    {
-                        data[product] = new List<(DateTime Date, double Sales)>();
-                    }
-                    data[product].Add((date, sales));
+                    dataList.Add(data);
                 }
             }
 
-            return data;
+            return dataList;
         }
-        public static (DateTime MaxItem, double MaxValue) AnalyzeSeasonality(List<(DateTime Date, double Sales)> salesData)
-        {
-            var salesByDate = salesData.GroupBy(x => x.Date)
-                                       .Select(g => new { Date = g.Key, Sales = g.Sum(x => x.Sales) })
-                                       .ToList();
+    }
 
-            var meanSales = salesByDate.Average(x => x.Sales);
-            var seasonalPeriods = salesByDate.Select(x => new { x.Date, Deviation = x.Sales - meanSales })
-                                             .OrderByDescending(x => x.Deviation)
-                                             .FirstOrDefault();
-
-            return (seasonalPeriods.Date, seasonalPeriods.Deviation);
-        }
-
-        static void GenerateReport(Dictionary<string, string> classification)
-        {
-            using (var package = new ExcelPackage())
-            {
-                var worksheet = package.Workbook.Worksheets.Add("Seasonal Classification");
-
-                worksheet.Cells[1, 1].Value = "Product";
-                worksheet.Cells[1, 2].Value = "Seasonality";
-
-                int row = 2;
-                foreach (var item in classification)
-                {
-                    worksheet.Cells[row, 1].Value = item.Key;
-                    worksheet.Cells[row, 2].Value = item.Value;
-                    row++;
-                }
-
-                package.SaveAs(new System.IO.FileInfo("seasonal_classification_report.xlsx"));
-            }
-        }
+    public class ExcelData
+    {
+        public string Location { get; set; }
+        public string Area { get; set; }
+        public string ProductDescription { get; set; }
+        public DateTime Date { get; set; }
+        public double Quantity { get; set; }
+        public double Price { get; set; }
     }
 }
