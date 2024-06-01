@@ -9,28 +9,52 @@ namespace excel_to_analytics.Api.Controllers
         {
             _context = context;
         }
+        // GET: api/v1/Products
         [HttpGet("Products")]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
-            return _context.Products.ToList();
+            return _context.Products.Include(p => p.Sales).ToList();
         }
 
+        // POST: api/v1/Product
         [HttpPost("Product")]
-        public ActionResult<Product> CreateContact(Product contact)
+        public ActionResult<Product> CreateProduct(Product product)
         {
-            if (contact == null)
+            if (product == null)
             {
-                return BadRequest("Invalid customer data.");
+                return BadRequest("Invalid product data.");
             }
+
             try
             {
-                _context.Products.Add(contact);
+                _context.Products.Add(product);
                 _context.SaveChanges();
-                return CreatedAtAction(nameof(GetProducts), new { id = contact.ProductId }, contact);
+                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, product);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to adding Product.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new product record.");
+            }
+        }
+
+        // POST: api/v1/Sale
+        [HttpPost("Sale")]
+        public ActionResult<Sale> CreateSale(Sale sale)
+        {
+            if (sale == null)
+            {
+                return BadRequest("Invalid sale data.");
+            }
+
+            try
+            {
+                _context.Sales.Add(sale);
+                _context.SaveChanges();
+                return CreatedAtAction(nameof(GetProducts), new { id = sale.SaleId }, sale);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new sale record.");
             }
         }
     }
