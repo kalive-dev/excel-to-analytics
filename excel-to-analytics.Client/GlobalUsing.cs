@@ -4,3 +4,6 @@ global using System.Collections.Generic;
 global using System.Text;
 global using System.Threading.Tasks;
 global using System.ComponentModel;
+global using System.Collections.ObjectModel;
+global using excel_to_analytics.Client.Models;
+global using System.Windows.Input;
